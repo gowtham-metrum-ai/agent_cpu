@@ -74,7 +74,7 @@ class Agent:
         return [Send("bill_agent", {"bill": state["bill"]}) for s in range(state["count"])]
 
 
-    @task
+    @task(name = "Initializing Agent")
     def init(self, bill = None, count = 2):
         res = self.app.invoke({"bill":bill, "count":count})
         return {"res":res['runs']}
