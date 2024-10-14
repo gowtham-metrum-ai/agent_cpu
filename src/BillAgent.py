@@ -2,7 +2,7 @@ import operator
 from typing import Annotated, TypedDict
 from langchain_core.messages import HumanMessage
 from typing import List
-
+from prefect import flow, task
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -13,8 +13,8 @@ from langchain_openai import ChatOpenAI
 # from langchain_openai import ChatOpenAI
 llm = ChatOpenAI(
     # model_name="meta-llama/llama-3.2-3b-instruct:free",
-    model_name="meta-llama/llama-3.1-405b-instruct",
-    api_key="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",
+    model_name="meta-llama/llama-3.1-70b-instruct",
+    api_key="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",
     base_url="https://openrouter.ai/api/v1",
     temperature = 0
 )
@@ -95,19 +95,20 @@ class BillAgent():
         graph.add_node("Legal and Compliance Agent", self.LAC)
         graph.add_node("Economic and Budgetary Impact Agent", self.EABI)
         graph.add_node("Social and Environmental Impact Agent", self.SAEI)
-        graph.add_node("Implementation and Feasibility Agent", self.IAFA)
+        # graph.add_node("Implementation and Feasibility Agent", self.IAFA)
         graph.add_edge(START, "Legal and Compliance Agent")
-        graph.add_edge(START, "Economic and Budgetary Impact Agent")
-        graph.add_edge(START, "Social and Environmental Impact Agent")
-        graph.add_edge(START, "Implementation and Feasibility Agent")
-        graph.add_edge("Legal and Compliance Agent", END)
-        graph.add_edge("Economic and Budgetary Impact Agent", END)
+        graph.add_edge("Legal and Compliance Agent", "Economic and Budgetary Impact Agent")
+        graph.add_edge("Economic and Budgetary Impact Agent", "Social and Environmental Impact Agent")
+        # graph.add_edge(START, "Implementation and Feasibility Agent")
+        # graph.add_edge("Legal and Compliance Agent", END)
+        # graph.add_edge("Economic and Budgetary Impact Agent", END)
         graph.add_edge("Social and Environmental Impact Agent", END)
-        graph.add_edge("Implementation and Feasibility Agent", END)
+        # graph.add_edge("Implementation and Feasibility Agent", END)
         self.agent = graph.compile()
 
 
     # Here we generate a joke, given a subject
+    @task(name = "Legal and Compliance Agent")
     def LAC(self, state: OverallState):
         parser = PydanticOutputParser(pydantic_object=Review)
         prompt = ChatPromptTemplate.from_messages(
@@ -122,6 +123,7 @@ class BillAgent():
         response = chain.invoke(state['bill'])
         return {"reviews": [response.content]}
 
+    @task(name = "Economic and Budgetary Impact Agent")
     def EABI(self, state: OverallState):
         parser = PydanticOutputParser(pydantic_object=Review)
         prompt = ChatPromptTemplate.from_messages(
@@ -136,6 +138,7 @@ class BillAgent():
         response = chain.invoke(state['bill'])
         return {"reviews": [response.content]}
 
+    @task(name = "Social and Environmental Impact Agent")
     def SAEI(self, state: OverallState):
         parser = PydanticOutputParser(pydantic_object=Review)
         prompt = ChatPromptTemplate.from_messages(
@@ -150,6 +153,7 @@ class BillAgent():
         response = chain.invoke(state['bill'])
         return {"reviews": [response.content]}
 
+    @task(name = "Implementation and Feasibility Agent")
     def IAFA(self, state: OverallState):
         parser = PydanticOutputParser(pydantic_object=Review)
         prompt = ChatPromptTemplate.from_messages(

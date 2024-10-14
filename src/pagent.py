@@ -2,7 +2,7 @@ import operator
 from typing import Annotated, TypedDict
 from langchain_core.messages import HumanMessage
 from typing import List
-
+from prefect import flow, task
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -27,23 +27,6 @@ llm = ChatOpenAI(
     base_url="http://localhost:8000/v1",
     # temperature = 0
 )
-
-
-class Subjects(BaseModel):
-    """ List of examples related to a given Topic"""
-    subjects: list[str]=Field(..., description="List of subjects each as string")
-
-
-class Joke(BaseModel):
-    """single Poem Based on the subject"""
-    joke: str = Field(..., description="Poem Based on the subject")
-
-
-class BestJoke(BaseModel):
-    """has the ID of the best joke among all the Poems"""
-    id: int = Field(description="Index of the best Poem, starting with 0")
-
-
 model = llm
 
 # Graph components: define the components that will make up the graph
@@ -79,18 +62,19 @@ class Agent:
 
 
     # Here we generate a joke, given a subject
+    @task
     def bill_agent(self, state: BAgentState):
         agent = BillAgent()
         res = agent.run(state['bill'])
         return {"runs": [res]}
 
 
-
+    @task
     def start_agent(self, state: OverallState):
         return [Send("bill_agent", {"bill": state["bill"]}) for s in range(state["count"])]
 
 
-
+    @task
     def init(self, bill = None, count = 2):
         res = self.app.invoke({"bill":bill, "count":count})
         return {"res":res['runs']}
