@@ -26,7 +26,7 @@ from prefect.task_runners import ThreadPoolTaskRunner
 @flow(name="Bill")
 def bill_workflow(bill: str):
     # uploaded_bill = ""
-    agent =  BillAgent
+    agent =  Agent()
     results = agent.init(bill)
     return results
 
