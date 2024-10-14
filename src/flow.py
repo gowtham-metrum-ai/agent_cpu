@@ -24,10 +24,10 @@ from prefect.task_runners import ThreadPoolTaskRunner
 #     return analyzed_results
 
 @flow(name="Bill", task_runner=ThreadPoolTaskRunner(max_workers=3))
-def bill_analysis_workflow(bill: str):
+def bill_workflow(bill: str, count: int):
     # uploaded_bill = ""
-    agent =  BillAgent()
-    results = agent.run(bill)
+    agent =  pagent
+    results = agent.init(bill, count)
     return results
 
 # if __name__ == "__main__":
