@@ -3,6 +3,7 @@ from prefect import flow, task
 from pagent import Agent
 from BillAgent import BillAgent
 from typing import List
+from prefect.task_runners import ThreadPoolTaskRunner
 
 # @task(name="Upload Bill")
 # def upload_bill(bill_content: str) -> str:
@@ -22,7 +23,7 @@ from typing import List
 #             analyzed_results.append(r)
 #     return analyzed_results
 
-@flow(name="Bill")
+@flow(name="Bill", task_runner=ThreadPoolTaskRunner(max_workers=3))
 def bill_analysis_workflow(bill: str):
     # uploaded_bill = ""
     agent =  BillAgent()
