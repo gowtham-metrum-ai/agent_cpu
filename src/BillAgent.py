@@ -168,6 +168,7 @@ class BillAgent():
         response = chain.invoke(state['bill'])
         return {"reviews": [response.content]}
     
+    @task
     def run(self, bill = None):
         res = self.agent.invoke({"bill":bill})
         return res['reviews']

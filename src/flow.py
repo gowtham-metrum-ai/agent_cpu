@@ -30,14 +30,14 @@ def bill_workflow(bill: str, count: int):
     results = agent.init(bill, count)
     return results
 
-# if __name__ == "__main__":
-#     results = bill_analysis_workflow(" ")
-#     print(results)
-
 if __name__ == "__main__":
-    bill_analysis_workflow.deploy(
-        name="my-deployment",
-        work_pool_name="my-work-pool",
-        image="my-docker-image:dev",
-        push=False
-    )
+    results = bill_workflow(" ", 2)
+    print(results)
+
+# if __name__ == "__main__":
+#     bill_analysis_workflow.deploy(
+#         name="my-deployment",
+#         work_pool_name="my-work-pool",
+#         image="my-docker-image:dev",
+#         push=False
+#     )
